@@ -15,7 +15,7 @@ app.get('/favorite', handleFav)
 
 
 // handle 404 errors
-app.use((req, res, next) => {
+app.use('/*', (req, res, next) => {
     res.status(404).json({
       statusCode: 404,
       message: 'Page not found!'
@@ -44,7 +44,7 @@ function Movie(title, posterPath, overview) {
     this.overview = overview;
 }
 //error 500 test here in home
-function handleHome(req ) {
+function handleHome(req ,res) {
     const newMovie = new Movie(data.title, data.poster_path, data.overview)
     res.json(
         { newMovie: newMovie }
