@@ -5,13 +5,19 @@ const app = express()
 const data = require('./Movie Data/data.json'); // outdated data.json
 const axios = require('axios'); // require axious to use it in the trend function
 require('dotenv').config(); // to be able to use dotenv.config from .env file
-
+const pg = require('pg');
+const client = new pg.Client(process.env.DBURL); // Creating client from the database url
 
 
 app.use(cors())
 app.use(express.json())
 const PORT = process.env.PORT || 3001; // port number from .env and backup port
+client.connect().then( test => {
+  console.log(test)
 app.listen(PORT, () => console.log('up and running'));
+}
+)
+
 
 // app.get routes
 app.get('/', handleHome)
@@ -20,6 +26,8 @@ app.get('/trend', handleTrend)
 app.get('/search', handleSearch)
 app.get('/trend/image', imgHandler)
 app.get('/trend/overview', handleTrendOverview)
+app.get('/addedmovie', seeMovieHandler)
+app.post('/addmovie',addMovieHandler)
 // constructor to extract data
 function Movie(id, title, release_date, posterPath, overview) {
   this.id = id;
@@ -31,7 +39,7 @@ function Movie(id, title, release_date, posterPath, overview) {
 // handle home and routes
 //................................................................
 function handleHome(req, res) {
-  const newMovie = new Movie(data.title, data.poster_path, data.overview)
+  const newMovie = new Movie(data.id, data.title, data.release_date)
   res.json(
     { newMovie: newMovie }
   )
@@ -121,7 +129,30 @@ async function handleTrendOverview(req, res) {
     res.status(500).send("Internal server error.");
   }
 }
+// data base handler 
+function seeMovieHandler (req,res) {
+  const sql = `select * from added_movie`;
+  client.query(sql).then( movie => {
+    res.json(
+      {count: movie.rowCount,
+      data: movie.rows
+      });
+    console.log(movie);
 
+}).catch(err => { 
+  errorHandler(err,req,res);
+});
+}
+function addMovieHandler(req, res, ) {
+  const userInput = req.body;
+  const sql = `insert into added_movie(id, title, overview) values($1, $2, $3) returning *`;
+
+  const handleValueFromUser = [userInput.id, userInput.title, userInput.overview];
+
+  client.query(sql, handleValueFromUser).then(data => {
+    res.status(201).json(data.rows)
+  }).catch(err => errorHandler(err, req, res))
+}
 
 //................................................................
 
@@ -135,11 +166,17 @@ app.use('/*', (req, res, next) => {
 });
 
 // handle 500 errors
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    statusCode: 500,
-    message: 'Internal server error!'
-  });
-});
+// app.use(function handleErorr(err, req, res, next) {
+//   console.error(err.stack);
+//   res.status(500).json({
+//     statusCode: 500,
+//     message: 'Internal server error!'
+//   });
+// });
 
+function errorHandler(error, req, res) {
+  res.status(500).json({
+    code: 500,
+    message: error.message || error
+  })
+}
