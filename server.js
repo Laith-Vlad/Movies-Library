@@ -12,9 +12,9 @@ const client = new pg.Client(process.env.DBURL); // Creating client from the dat
 app.use(cors())
 app.use(express.json())
 const PORT = process.env.PORT || 3001; // port number from .env and backup port
-client.connect().then( test => {
-  
-app.listen(PORT, () => console.log('up and running'));
+client.connect().then(test => {
+
+  app.listen(PORT, () => console.log('up and running'));
 }
 )
 
@@ -24,10 +24,15 @@ app.get('/', handleHome)
 app.get('/favorite', handleFav)
 app.get('/trend', handleTrend)
 app.get('/search', handleSearch)
+
 app.get('/trend/image', imgHandler)
 app.get('/trend/overview', handleTrendOverview)
+
 app.get('/addmovie', seeMovieHandler)
-app.post('/addmovie',addMovieHandler)
+app.post('/addmovie', addMovieHandler)
+app.get('/addmovie/:id', getHandler)
+app.put('/addmovie/:id', updateHandler)
+app.delete('/addmovie/:id', deleteHandler)
 // constructor to extract data
 function Movie(id, title, release_date, posterPath, overview) {
   this.id = id;
@@ -46,7 +51,7 @@ function handleHome(req, res) {
 }
 
 function handleFav(req, res) {
-  
+
   res.send('welcome to favorites')
 }
 function handleSearch(req, res) {
@@ -129,21 +134,22 @@ async function handleTrendOverview(req, res) {
     res.status(500).send("Internal server error.");
   }
 }
-// data base handler 
-function seeMovieHandler (req,res) {
+// data base handler get post update delete
+function seeMovieHandler(req, res) {
   const sql = `select * from added_movie`;
-  client.query(sql).then( movie => {
+  client.query(sql).then(movie => {
     res.json(
-      {count: movie.rowCount,
-      data: movie.rows
+      {
+        count: movie.rowCount,
+        data: movie.rows
       });
     // console.log(movie);
 
-}).catch(err => { 
-  handleErorr(err,req,res);
-});
+  }).catch(err => {
+    handleErorr(err, req, res);
+  });
 }
-function addMovieHandler(req, res, ) {
+function addMovieHandler(req, res) {
   const userInput = req.body;
   const sql = `insert into added_movie(id, title, overview) values($1, $2, $3) returning *`;
 
@@ -151,10 +157,63 @@ function addMovieHandler(req, res, ) {
 
   client.query(sql, handleValueFromUser).then(data => {
     res.status(201).json(data.rows)
-  }).catch(err => handleErorr(err, req, res,next));
+  }).catch(err => handleErorr(err, req, res, next));
+}
+// Lab 14 get update and delete using sql
+function getHandler(req, res) {
+  const id = req.params.id;
+  const sql = 'SELECT * FROM added_movie WHERE id = $1;';
+  const params = [id];
+  client.query(sql, params)
+    .then(data => {
+      if (data.rowCount === 0) {
+        res.status(404).send(`Movie with ID ${id} not found`);
+      } else {
+        res.status(200).json({ data: data.rows[0] });
+      }
+    })
+    .catch(err => {
+      console.error('Error executing query', err.stack);
+      res.status(500).send('Error executing query');
+    });
 }
 
-//................................................................
+function updateHandler(req, res) {
+  const id = req.params.id;
+  const updateData = req.body;
+  const sql = `UPDATE added_movie
+               SET title = $1, overview = $2
+               WHERE id = $3
+               RETURNING *;`;
+  const updated = [updateData.title, updateData.overview, id];
+  client.query(sql, updated)
+    .then(data => {
+      res.status(202).json({ data });
+    })
+    .catch(err => {
+      console.error('Error executing query', err.stack);
+      res.status(500).send('Error executing query');
+    });
+}
+
+function deleteHandler(req, res) {
+  const id = req.params.id;
+  const sql = 'DELETE FROM added_movie WHERE id = $1 RETURNING *;';
+  const params = [id];
+  client.query(sql, params)
+    .then(data => {
+      if (data.rowCount === 0) {
+        res.status(404).send(`Movie with ID ${id} not found`);
+      } else {
+        res.status(204).send();
+      }
+    })
+    .catch(err => {
+      console.error('Error executing query', err.stack);
+      res.status(500).send('Error executing query');
+    });
+}
+//................................................
 
 // error handling
 // handle 404 errors
