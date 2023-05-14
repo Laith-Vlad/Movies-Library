@@ -13,7 +13,7 @@ app.use(cors())
 app.use(express.json())
 const PORT = process.env.PORT || 3001; // port number from .env and backup port
 client.connect().then( test => {
-  console.log(test)
+  
 app.listen(PORT, () => console.log('up and running'));
 }
 )
@@ -26,7 +26,7 @@ app.get('/trend', handleTrend)
 app.get('/search', handleSearch)
 app.get('/trend/image', imgHandler)
 app.get('/trend/overview', handleTrendOverview)
-app.get('/addedmovie', seeMovieHandler)
+app.get('/addmovie', seeMovieHandler)
 app.post('/addmovie',addMovieHandler)
 // constructor to extract data
 function Movie(id, title, release_date, posterPath, overview) {
@@ -46,7 +46,7 @@ function handleHome(req, res) {
 }
 
 function handleFav(req, res) {
-  console.log('testing the favorite url')
+  
   res.send('welcome to favorites')
 }
 function handleSearch(req, res) {
@@ -114,7 +114,7 @@ async function handleTrendOverview(req, res) {
     }
 
     const firstMovieId = movieData.data.results[0].id;
-    console.log(firstMovieId)
+    // console.log(firstMovieId)
 
     const overviewData = await axios.get(`https://api.themoviedb.org/3/movie/${firstMovieId}?api_key=${process.env.MOVKEY}`);
     console.log(overviewData)
@@ -137,10 +137,10 @@ function seeMovieHandler (req,res) {
       {count: movie.rowCount,
       data: movie.rows
       });
-    console.log(movie);
+    // console.log(movie);
 
 }).catch(err => { 
-  errorHandler(err,req,res);
+  handleErorr(err,req,res);
 });
 }
 function addMovieHandler(req, res, ) {
@@ -151,7 +151,7 @@ function addMovieHandler(req, res, ) {
 
   client.query(sql, handleValueFromUser).then(data => {
     res.status(201).json(data.rows)
-  }).catch(err => errorHandler(err, req, res))
+  }).catch(err => handleErorr(err, req, res,next));
 }
 
 //................................................................
@@ -165,14 +165,14 @@ app.use('/*', (req, res, next) => {
   });
 });
 
-// handle 500 errors
-// app.use(function handleErorr(err, req, res, next) {
-//   console.error(err.stack);
-//   res.status(500).json({
-//     statusCode: 500,
-//     message: 'Internal server error!'
-//   });
-// });
+//handle 500 errors
+app.use(function handleErorr(err, req, res, next) {
+  // console.error(err.stack);
+  res.status(500).json({
+    statusCode: 500,
+    message: 'Internal server error!'
+  });
+});
 
 function errorHandler(error, req, res) {
   res.status(500).json({
