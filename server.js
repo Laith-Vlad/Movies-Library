@@ -151,7 +151,7 @@ function addMovieHandler(req, res) {
 
   client.query(sql, handleValueFromUser).then(data => {
     const insertedMovie = data.rows[0];
-    const generatedId = insertedMovie.id; // Assuming the generated ID is returned by the database
+    const generatedId = insertedMovie.id; 
     insertedMovie.generatedId = generatedId;
     res.status(201).json(insertedMovie);
   }).catch(err => handleErorr(err, req, res, next));
