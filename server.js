@@ -151,14 +151,20 @@ function seeMovieHandler(req, res) {
 }
 function addMovieHandler(req, res) {
   const userInput = req.body;
-  const sql = `insert into added_movie(id, title, overview) values($1, $2, $3) returning *`;
+  const sql = `insert into added_movie(title, overview) values($1, $2) returning *`;
 
-  const handleValueFromUser = [userInput.id, userInput.title, userInput.overview];
+  const handleValueFromUser = [userInput.title, userInput.overview];
 
   client.query(sql, handleValueFromUser).then(data => {
-    res.status(201).json(data.rows)
+
+    const insertedMovie = data.rows[0];
+    const generatedId = insertedMovie.id; 
+    insertedMovie.generatedId = generatedId;
+    res.status(201).json(insertedMovie);
   }).catch(err => handleErorr(err, req, res, next));
 }
+//................................................................
+
 // Lab 14 get update and delete using sql
 function getHandler(req, res) {
   const id = req.params.id;
@@ -214,6 +220,7 @@ function deleteHandler(req, res) {
     });
 }
 //................................................
+
 
 // error handling
 // handle 404 errors
