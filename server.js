@@ -2,7 +2,7 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const data = require('./Movie Data/data.json'); // outdated data.json
+const data = require('./movieData/data.json'); // outdated data.json
 const axios = require('axios'); // require axious to use it in the trend function
 require('dotenv').config(); // to be able to use dotenv.config from .env file
 const pg = require('pg');
