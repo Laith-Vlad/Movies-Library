@@ -60,7 +60,9 @@ function handleSearch(req, res) {
         movie: result.data.results
       }
     );
-  })
+  }).catch(err => {
+    handleErorr(err, req, res,next);
+  });
 }
 
 async function handleTrend(req, res) {
