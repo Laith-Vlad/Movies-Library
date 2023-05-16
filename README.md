@@ -47,4 +47,4 @@ ____________________________
 <li>You can navigate to favorites and see a text,you can also access to updated information throwugh trend,trendimage and trendoverview.
 <li >You can navigate to djasofj or anywhere that has not been made and get error 404 and it usses try catch method to pinpoint errors.
 <li> if there is a error in the workings of the server like a response or a request that is not there you will get error 500 internal error.
-<li>Uses get post update and delete to get new data from the client and add it to the database then you can view it there delete it or update it in the database.
+<li>Uses get post update and delete to get new data from the client and add it to the database then you can view it there delete it or update it in the database.# serv
