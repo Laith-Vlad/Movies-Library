@@ -143,17 +143,19 @@ function seeMovieHandler (req,res) {
   handleErorr(err,req,res);
 });
 }
-function addMovieHandler(req, res, ) {
+function addMovieHandler(req, res) {
   const userInput = req.body;
-  const sql = `insert into added_movie(id, title, overview) values($1, $2, $3) returning *`;
+  const sql = `insert into added_movie(title, overview) values($1, $2) returning *`;
 
-  const handleValueFromUser = [userInput.id, userInput.title, userInput.overview];
+  const handleValueFromUser = [userInput.title, userInput.overview];
 
   client.query(sql, handleValueFromUser).then(data => {
-    res.status(201).json(data.rows)
-  }).catch(err => handleErorr(err, req, res,next));
+    const insertedMovie = data.rows[0];
+    const generatedId = insertedMovie.id; // Assuming the generated ID is returned by the database
+    insertedMovie.generatedId = generatedId;
+    res.status(201).json(insertedMovie);
+  }).catch(err => handleErorr(err, req, res, next));
 }
-
 //................................................................
 
 // error handling
