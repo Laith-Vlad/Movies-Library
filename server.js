@@ -45,10 +45,16 @@ function Movie(id, title, release_date, posterPath, overview) {
 
 // handle home and routes
 function handleHome(req, res) {
-  const movieData = data.map(item => new Movie(item.id, item.title, item.release_date, item.posterPath, item.overview));
+  const movieData = {
+    id: data.id,
+    title: data.title,
+    release_date: data.release_date,
+    poster_path: data.poster_path,
+    overview: data.overview
+  };
+
   res.json({ movieData: movieData });
 }
-
 function handleFav(req, res) {
   res.send('Welcome to favorites');
 }
