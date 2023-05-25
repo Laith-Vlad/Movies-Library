@@ -1,9 +1,11 @@
 'use strict';
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const data = require('./Movie Data/data.json'); // outdated data.json
 const axios = require('axios'); // require axios to use it in the trend function
+
 require('dotenv').config(); // to be able to use dotenv.config from .env file
 const pg = require('pg');
 const client = new pg.Client(process.env.DBURL); // Creating client from the database URL
@@ -11,9 +13,11 @@ const client = new pg.Client(process.env.DBURL); // Creating client from the dat
 app.use(cors());
 app.use(express.json());
 const PORT = process.env.PORT || 3001; // port number from .env and backup port
+
 client.connect().then(() => {
   app.listen(PORT, () => console.log('up and running'));
 });
+
 
 // app.get routes
 app.get('/', handleHome);
@@ -56,6 +60,7 @@ function handleSearch(req, res) {
     .then(result => {
       res.status(200).json({
         code: 200,
+ 
         movie: result.data.results,
       });
     })
@@ -85,6 +90,7 @@ async function handleTrend(req, res) {
     console.error(error);
     res.status(500).send('Internal server error.');
   }
+
 }
 
 // display pic of the first movie of trending
@@ -142,10 +148,12 @@ function seeMovieHandler(req, res) {
         count: movie.rowCount,
         data: movie.rows,
       });
+
     })
     .catch(err => {
       handleErorr(err, req, res);
     });
+
 }
 
 function addMovieHandler(req, res) {
@@ -218,9 +226,10 @@ function deleteHandler(req, res) {
 }
 
 // error handling
+
 function handleErorr(err, req, res) {
   console.error(err);
   res.status(500).send('Error');
 }
 
-// listener
+
