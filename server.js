@@ -178,16 +178,14 @@ function addMovieHandler(req, res) {
 }
 
 function getHandler(req, res) {
-  const id = req.params.id;
-  const sql = 'SELECT * FROM added_movie WHERE id = $1;';
-  const params = [id];
+  const sql = 'SELECT * FROM added_movie;';
   client
-    .query(sql, params)
+    .query(sql)
     .then(data => {
       if (data.rowCount === 0) {
-        res.status(404).send(`Movie with ID ${id} not found`);
+        res.status(404).send('No movies found');
       } else {
-        res.status(200).json({ data: data.rows[0] });
+        res.status(200).json({ data: data.rows });
       }
     })
     .catch(err => {
