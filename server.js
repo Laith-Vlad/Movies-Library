@@ -239,10 +239,3 @@ app.use(function handleErorr(err, req, res, next) {
     message: 'Internal server error!'
   });
 });
-
-function errorHandler(error, req, res) {
-  res.status(500).json({
-    code: 500,
-    message: error.message || error
-  })
-}
