@@ -236,8 +236,11 @@ app.use('/*', (req, res, next) => {
 
 //handle 500 errors
 
-function handleErorr(err, req, res, next) {
-  // console.error(err.stack);
+app.use(function handleErorr(err, req, res, next) {
+  console.error(err.stack);
+
+
+
   res.status(500).json({
     statusCode: 500,
     message: 'Internal server error!'
