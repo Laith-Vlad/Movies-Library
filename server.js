@@ -2,7 +2,7 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const data = require('./Movie Data/data.json'); // outdated data.json
+const data = require('./movieData/data.json'); // outdated data.json
 const axios = require('axios'); // require axious to use it in the trend function
 require('dotenv').config(); // to be able to use dotenv.config from .env file
 const pg = require('pg');
@@ -12,11 +12,7 @@ const client = new pg.Client(process.env.DBURL); // Creating client from the dat
 app.use(cors())
 app.use(express.json())
 const PORT = process.env.PORT || 3001; // port number from .env and backup port
-client.connect().then(test => {
 
-  app.listen(PORT, () => console.log('up and running'));
-}
-)
 
 
 // app.get routes
@@ -64,12 +60,14 @@ function handleSearch(req, res) {
         movie: result.data.results
       }
     );
-  })
+  }).catch(err => {
+    handleErorr(err, req, res,next);
+  });
 }
 
 async function handleTrend(req, res) {
-
-  const moveData = await axios.get(`${process.env.URLMOVIE}?api_key=${process.env.MOVKEY}`);
+ try {
+    const moveData = await axios.get(`${process.env.URLMOVIE}?api_key=${process.env.MOVKEY}`);
 
   const movieData = moveData.data.results.map(movie => ({
     id: movie.id,
@@ -83,6 +81,10 @@ async function handleTrend(req, res) {
     code: 200,
     message: movieData
   });
+
+ } catch (error) {
+  handleErorr(err,req,res,next);
+ }
 
 }
 
@@ -146,7 +148,7 @@ function seeMovieHandler(req, res) {
     // console.log(movie);
 
   }).catch(err => {
-    handleErorr(err, req, res);
+    handleErorr(err, req, res,next);
   });
 }
 function addMovieHandler(req, res) {
@@ -224,6 +226,7 @@ function deleteHandler(req, res) {
 
 // error handling
 // handle 404 errors
+app.use(handleErorr);
 app.use('/*', (req, res, next) => {
   res.status(404).json({
     statusCode: 404,
@@ -232,10 +235,13 @@ app.use('/*', (req, res, next) => {
 });
 
 //handle 500 errors
+
 app.use(function handleErorr(err, req, res, next) {
   console.error(err.stack);
+
+
+
   res.status(500).json({
     statusCode: 500,
     message: 'Internal server error!'
   });
-});
