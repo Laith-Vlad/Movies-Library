@@ -245,16 +245,3 @@ app.use(function handleErorr(err, req, res, next) {
     statusCode: 500,
     message: 'Internal server error!'
   });
-}
-
-// function errorHandler(error, req, res) {
-//   res.status(500).json({
-//     code: 500,
-//     message: error.message || error
-//   })
-// }
-client.connect().then(test => {
-
-  app.listen(PORT, () => console.log('up and running'));
-}
-)
