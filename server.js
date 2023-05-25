@@ -151,9 +151,9 @@ function seeMovieHandler(req, res) {
 }
 function addMovieHandler(req, res) {
   const userInput = req.body;
-  const sql = `insert into added_movie(title, overview) values($1, $2) returning *`;
+  const sql = `insert into added_movie(title, overview,comment) values($1, $2, $3) returning *`;
 
-  const handleValueFromUser = [userInput.title, userInput.overview];
+  const handleValueFromUser = [userInput.title, userInput.overview,userInput.comment];
 
   client.query(sql, handleValueFromUser).then(data => {
 
@@ -188,10 +188,10 @@ function updateHandler(req, res) {
   const id = req.params.id;
   const updateData = req.body;
   const sql = `UPDATE added_movie
-               SET title = $1, overview = $2
-               WHERE id = $3
+               SET title = $1, overview = $2, comment = $3
+               WHERE id = $4
                RETURNING *;`;
-  const updated = [updateData.title, updateData.overview, id];
+  const updated = [updateData.title, updateData.overview,updateData.comment, id];
   client.query(sql, updated)
     .then(data => {
       res.status(202).json({ data });
